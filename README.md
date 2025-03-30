@@ -1,4 +1,4 @@
-# Levantamento de Requisitos - Projeto TCC
+# Levantamento de Requisitos - Projeto Game
 
 Este documento apresenta os requisitos funcionais e não funcionais para o desenvolvimento de um jogo inspirado em Fall Guys, com suporte para dois jogadores (splitscreen e LAN). O projeto deve ser concluído em aproximadamente 1,5 meses, portanto, o foco é em um escopo mínimo e viável.
 
