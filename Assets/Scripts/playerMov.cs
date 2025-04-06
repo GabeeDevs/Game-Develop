@@ -4,64 +4,57 @@ using UnityEngine;
 
 public class playerMov : MonoBehaviour
 {
-    private CharacterController character;
+    private CharacterController controller;
+    private Transform myCamera;
     private Animator animator;
-    private Vector3 inputs;
-
-    private float velocidade = 2f;
-    private float forcaPulo = 5f;
-    private float gravidade = -9.8f;  
-    private float velocidadeVertical = 0f;
 
     private bool estaNoChao;
+    [SerializeField] private Transform peDoPersonagem;
+    [SerializeField] private LayerMask colisaoLayer;
 
-
+    private float forcaY;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        character = GetComponent<CharacterController>();
+        controller = GetComponent<CharacterController>();
+        myCamera = Camera.main.transform;
         animator = GetComponent<Animator>();
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        estaNoChao = character.isGrounded;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
 
-        inputs.Set(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        character.Move(inputs * Time.deltaTime * velocidade);
-        character.Move(Vector3.down * Time.deltaTime);
+        Vector3 movimento = new Vector3(horizontal, 0, vertical);
+       
+        movimento = myCamera.TransformDirection(movimento);
+        movimento.y = 0;
 
-        if (!estaNoChao)
+        controller.Move(movimento * Time.deltaTime * 5);
+        
+
+        if(movimento != Vector3.zero)
         {
-            velocidadeVertical += gravidade * Time.deltaTime;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movimento), Time.deltaTime * 10);
         }
-        else
+
+        animator.SetBool("andando", movimento != Vector3.zero);
+
+        estaNoChao = Physics.CheckSphere(peDoPersonagem.position, 0.3f, colisaoLayer);
+
+        if(Input.GetKeyDown(KeyCode.Space) && estaNoChao)
         {
-            if (Input.GetButtonDown("Jump"))
-            {
-                velocidadeVertical = forcaPulo;
-            }
-            else
-            {
-                velocidadeVertical = -2f;
-            }
+            forcaY = 5;
             
         }
-
-        character.Move(new Vector3(0, velocidadeVertical, 0) * Time.deltaTime);
-
-        if (inputs != Vector3.zero)
+        if (forcaY > -9.81f)
         {
-            animator.SetBool("andando", true);
-            transform.forward = Vector3.Slerp(transform.forward, inputs, Time.deltaTime * 10);    
+            forcaY += -9.81f * Time.deltaTime;
         }
-        else
-        {
-            animator.SetBool("andando", false);
-        }
-        Debug.Log("Andando: " + animator.GetBool("andando"));
+
+        controller.Move(new Vector3(0, forcaY, 0) * Time.deltaTime);
     }
 }
