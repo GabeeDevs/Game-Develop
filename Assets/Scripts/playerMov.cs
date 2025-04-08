@@ -19,7 +19,7 @@ public class playerMov : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         myCamera = Camera.main.transform;
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -41,7 +41,7 @@ public class playerMov : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movimento), Time.deltaTime * 10);
         }
 
-        animator.SetBool("andando", movimento != Vector3.zero);
+        //animator.SetBool("andando", movimento != Vector3.zero);
 
         estaNoChao = Physics.CheckSphere(peDoPersonagem.position, 0.3f, colisaoLayer);
 
