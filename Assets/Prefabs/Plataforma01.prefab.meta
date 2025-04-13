@@ -1,6 +1,11 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Prefabs/Plataforma01.prefab.meta
 guid: e916f3b831b669847986347a8e656134
 PrefabImporter:
+========
+guid: 8e2050ea84acf954abdc472493892da4
+DefaultImporter:
+>>>>>>>> cc104e905118e8c22816cf500ef54a73fe371b6d:Assets/Characters/Dinossauro/uploads_files_5161580_dino_HP.mtl.meta
   externalObjects: {}
   userData: 
   assetBundleName: 
