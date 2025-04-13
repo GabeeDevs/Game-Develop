@@ -1,5 +1,5 @@
-using System.Collections;
-using System.Collections.Generic; 
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class playerMov : MonoBehaviour
@@ -14,12 +14,12 @@ public class playerMov : MonoBehaviour
 
     private float forcaY;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<CharacterController>();
         myCamera = Camera.main.transform;
-        //animator = GetComponent<Animator>();
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -29,27 +29,32 @@ public class playerMov : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
 
         Vector3 movimento = new Vector3(horizontal, 0, vertical);
-       
         movimento = myCamera.TransformDirection(movimento);
         movimento.y = 0;
 
         controller.Move(movimento * Time.deltaTime * 5);
-        
 
-        if(movimento != Vector3.zero)
+        // Verifica se está andando (usando magnitude para maior precisão)
+        bool estaAndando = movimento.magnitude > 0.1f;
+
+        if (estaAndando)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movimento), Time.deltaTime * 10);
         }
 
-        //animator.SetBool("andando", movimento != Vector3.zero);
+        // Atualiza o parâmetro "andando" no Animator
+        if (animator != null)
+        {
+            animator.SetBool("andando", estaAndando);
+        }
 
         estaNoChao = Physics.CheckSphere(peDoPersonagem.position, 0.3f, colisaoLayer);
 
-        if(Input.GetKeyDown(KeyCode.Space) && estaNoChao)
+        if (Input.GetKeyDown(KeyCode.Space) && estaNoChao)
         {
             forcaY = 5;
-            
         }
+
         if (forcaY > -9.81f)
         {
             forcaY += -9.81f * Time.deltaTime;
