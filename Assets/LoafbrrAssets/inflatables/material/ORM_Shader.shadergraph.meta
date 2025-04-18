@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: eb6479c5dc987fa409d8f3cd70e8d24b
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 316990
+  packageName: Inflatables
+  packageVersion: 1.0
+  assetPath: Assets/LoafbrrAssets/inflatables/material/ORM_Shader.shadergraph
+  uploadId: 748334
