@@ -6,7 +6,9 @@ public class playerMov : MonoBehaviour
 {
     private CharacterController controller;
     private Transform myCamera;
-    private Animator animator;
+    public Animator animator;
+
+    bool estaAndando;
 
     private bool estaNoChao;
     [SerializeField] private Transform peDoPersonagem;
@@ -19,7 +21,7 @@ public class playerMov : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         myCamera = Camera.main.transform;
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
