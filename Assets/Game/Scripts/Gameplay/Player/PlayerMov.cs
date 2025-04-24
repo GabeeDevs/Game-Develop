@@ -51,16 +51,20 @@ public class playerMov : MonoBehaviour
         }
 
         estaNoChao = Physics.CheckSphere(peDoPersonagem.position, 0.3f, colisaoLayer);
+        animator.SetBool("EstaNoChao", estaNoChao);
 
         if (Input.GetKeyDown(KeyCode.Space) && estaNoChao)
         {
             forcaY = 5;
+            animator.SetTrigger("Saltar");
         }
 
         if (forcaY > -9.81f)
         {
             forcaY += -9.81f * Time.deltaTime;
         }
+
+        
 
         controller.Move(new Vector3(0, forcaY, 0) * Time.deltaTime);
     }
