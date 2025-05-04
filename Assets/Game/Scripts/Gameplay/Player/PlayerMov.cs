@@ -1,71 +1,143 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Security.Cryptography.X509Certificates;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class playerMov : MonoBehaviour
 {
-    private CharacterController controller;
-    private Transform myCamera;
-    public Animator animator;
+    public Rigidbody rb;
+    public Transform cam;
+    public LayerMask ground;
 
-    bool estaAndando;
+    public float speed, maxSpeed, drag;
+    public float rotationSpeed, jumpForce;
 
-    private bool estaNoChao;
-    [SerializeField] private Transform peDoPersonagem;
-    [SerializeField] private LayerMask colisaoLayer;
+    bool left, forward, right, backward;
+    bool grounded, jump;
 
-    private float forcaY;
+    public float crouchingSpeed;
+    bool crouch, crouching;
+    float originalSpeed;
 
-    // Start is called before the first frame update
-    void Start()
+
+    private void Start()
     {
-        controller = GetComponent<CharacterController>();
-        myCamera = Camera.main.transform;
-        //animator = GetComponent<Animator>();
+        originalSpeed = speed;
     }
+
 
     // Update is called once per frame
     void Update()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        HandleInput();
+        LimitVelocity();
+        HandleDrag();
+        HandleRotation();
+        CheckGrounded();
 
-        Vector3 movimento = new Vector3(horizontal, 0, vertical);
-        movimento = myCamera.TransformDirection(movimento);
-        movimento.y = 0;
+    }
 
-        controller.Move(movimento * Time.deltaTime * 5);
-
-        // Verifica se está andando (usando magnitude para maior precisão)
-        bool estaAndando = movimento.magnitude > 0.1f;
-
-        if (estaAndando)
+    void HandleRotation()
+    {
+        if ((new Vector2(rb.velocity.x, rb.velocity.z)).magnitude > .1f)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movimento), Time.deltaTime * 10);
+            Vector3 horizontalDir = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            Quaternion rotation = Quaternion.LookRotation(horizontalDir, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, rotationSpeed);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        HandleMovement();
+
+    }
+
+    void CheckGrounded()
+    {
+        grounded = Physics.Raycast(transform.position + Vector3.up * .1f, Vector3.down, 2f, ground);
+    }
+
+    void LimitVelocity()
+    {
+        Vector3 horizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        if (horizontalVelocity.magnitude > maxSpeed)
+        {
+            Vector3 limitedVelocity = horizontalVelocity.normalized * maxSpeed;
+            rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
+        }
+    }
+
+    void HandleDrag()
+    {
+        rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z) / (1 + drag / 100) + new Vector3(0, rb.velocity.y, 0);
+    }
+
+
+    void HandleMovement()
+    {
+
+        Quaternion dir = Quaternion.Euler(0f, cam.rotation.eulerAngles.y, 0f);
+
+        if (left)
+        {
+            rb.AddForce(dir * Vector3.left * speed);
+            left = false;
+        }
+        if (forward)
+        {
+            rb.AddForce(dir * Vector3.forward * speed);
+            forward = false;
+        }
+        if (backward)
+        {
+            rb.AddForce(dir * Vector3.back * speed);
+            backward = false;
+        }
+        if (right)
+        {
+            rb.AddForce(dir * Vector3.right * speed);
+            right = false;
+        }
+        if (jump && grounded)
+        {
+            transform.position += Vector3.up * .1f;
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.y);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            jump = false;
         }
 
-        // Atualiza o parâmetro "andando" no Animator
-        if (animator != null)
+        if (crouch && !crouching)
         {
-            animator.SetBool("andando", estaAndando);
+            speed = crouchingSpeed;
+            transform.localScale -= new Vector3(0, .5f, 0);
+            crouch = false;
+            crouching = true;
+        }
+        if (crouching && !crouch)
+        {
+            speed = originalSpeed;
+            transform.localScale += new Vector3(0, .5f, 0);
+            crouch = false;
+            crouching = false;
         }
 
-        estaNoChao = Physics.CheckSphere(peDoPersonagem.position, 0.3f, colisaoLayer);
-        animator.SetBool("EstaNoChao", estaNoChao);
+    }
 
-        if (Input.GetKeyDown(KeyCode.Space) && estaNoChao)
-        {
-            forcaY = 5;
-            animator.SetTrigger("Saltar");
-        }
+    void HandleInput()
+    {
+        if (Input.GetKey(KeyCode.A))
+            left = true;
+        if (Input.GetKey(KeyCode.D))
+            right = true;
+        if (Input.GetKey(KeyCode.S))
+            backward = true;
+        if (Input.GetKey(KeyCode.W))
+            forward = true;
 
-        if (forcaY > -9.81f)
-        {
-            forcaY += -9.81f * Time.deltaTime;
-        }
+        if (Input.GetKeyDown(KeyCode.Space) && grounded)
+            jump = true;
 
-        
-
-        controller.Move(new Vector3(0, forcaY, 0) * Time.deltaTime);
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+            crouch = true;
     }
 }
